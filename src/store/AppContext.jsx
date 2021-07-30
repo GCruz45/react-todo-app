@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import * as uuid from "uuid";
+import { sortLabels, SORT_TYPE_ASC, SORT_TYPE_DESC } from "../constants/sort";
 const AppContext = React.createContext();
 
 export const AppContextWrapper = (props) => {
@@ -18,10 +19,23 @@ export const AppContextWrapper = (props) => {
     setTasks(taskUpdate);
   };
 
+  const setTaskTitle = (id, newTitle) => {
+    const taskUpdate = tasks.map((task) => {
+      if (task.id === id) {
+        return {
+          ...task,
+          title: newTitle,
+        };
+      }
+      return task;
+    });
+    setTasks(taskUpdate);
+  };
+
   const saveTask = (title) => {
     const newTask = {
       id: uuid.v1(),
-      copmleted: false,
+      completed: false,
       userId: uuid.v1(),
       title,
     };
@@ -29,7 +43,30 @@ export const AppContextWrapper = (props) => {
     setTasks(newTasks);
   };
 
-  const state = { tasks, setTasks, setTaskStatus, saveTask };
+  const sortTasks = (sortType) => {
+    const tasksCopy = tasks.map((task) => task);
+    if (sortType === SORT_TYPE_ASC) {
+      tasksCopy.sort((a, b) => (a.title > b.title ? 1 : -1));
+    } else if (sortType === SORT_TYPE_DESC) {
+      tasksCopy.sort((a, b) => (a.title < b.title ? 1 : -1));
+    }
+    setTasks(tasksCopy);
+  };
+
+  const deleteTask = (taskId) => {
+    const taskArr = tasks.filter((task) => task.id !== taskId);
+    setTasks(taskArr);
+  };
+
+  const state = {
+    tasks,
+    setTasks,
+    setTaskStatus,
+    saveTask,
+    sortTasks,
+    setTaskTitle,
+    deleteTask,
+  };
 
   return (
     <AppContext.Provider value={state} displayName="AppContext">
